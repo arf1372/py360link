@@ -1,6 +1,5 @@
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from lxml import etree
-import urlparse
 
 #Added to avoid the following errors:
 #Cannot convert lxml.etree._RotatingErrorLog to lxml.etree._BaseErrorLog
@@ -64,7 +63,7 @@ def get_sersol_response(query, key, timeout):
     """
     Get the SerSol API response and parse it into an etree.
     """
-    import urllib2
+    import urllib.request, urllib.error, urllib.parse
     if key is None:
         raise Link360Exception('Serial Solutions 360Link XML API key is required.')
     
@@ -74,9 +73,9 @@ def get_sersol_response(query, key, timeout):
     #Go get the 360link response
     #Base 360Link url
     base_url = "http://%s.openurl.xml.serialssolutions.com/openurlxml?" % key
-    base_url += urllib.urlencode(required_url_elements)
+    base_url += urllib.parse.urlencode(required_url_elements)
     url = base_url + '&%s' % query.lstrip('?')
-    f = urllib2.urlopen(url, timeout=timeout)
+    f = urllib.request.urlopen(url, timeout=timeout)
     doc = etree.parse(f)
     return doc
 
@@ -201,7 +200,7 @@ class Resolved(object):
         self.data = data
         self.query = data['echoedQuery']['queryString']
         self.library = data['echoedQuery']['library']['name']
-        self.query_dict = urlparse.parse_qs(self.query)
+        self.query_dict = urllib.parse.parse_qs(self.query)
         error = self.data.get('diagnostics', None)
         if error:
             msg = ' '.join([e.get('message') for e in error if e])
@@ -215,7 +214,7 @@ class Resolved(object):
         
     @property
     def openurl(self):
-        return urllib.urlencode(self.openurl_pairs(), doseq=True)
+        return urllib.parse.urlencode(self.openurl_pairs(), doseq=True)
     
     @property
     def oclc_number(self):
@@ -244,7 +243,7 @@ class Resolved(object):
         be returned from the 360Link API.
         """
         retain = ['rfe_dat', 'rfr_id', 'sid']
-        parsed = urlparse.parse_qs(self.query)
+        parsed = urllib.parse.parse_qs(self.query)
         out = []
         for key in retain:
             val = parsed.get(key, None)
@@ -261,7 +260,7 @@ class Resolved(object):
         
         See http://ocoins.info/cobg.html for implementation guidelines.
         """
-        query = urlparse.parse_qs(self.query)
+        query = urllib.parse.parse_qs(self.query)
         format = self.format
         #Pop invalid rft_id from OCLC
         try:
@@ -273,7 +272,7 @@ class Resolved(object):
         #Massage the citation into an OpenURL
         #Using a list of tuples here to account for the possiblity of repeating values.
         out = []
-        for k, v in self.citation.items():
+        for k, v in list(self.citation.items()):
             #Handle issns differently.  They are a dict in the 360LinkJSON response.
             if k == 'issn':
                 issn_dict = self.citation[k]

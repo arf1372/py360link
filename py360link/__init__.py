@@ -1,1 +1,1 @@
-from link360 import *
+from .link360 import *

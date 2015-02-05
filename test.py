@@ -7,8 +7,8 @@ supplied.
 
 from pprint import pprint
 import unittest
-import urlparse
-from py360link import get_sersol_data, Resolved
+import urllib.parse
+from .py360link import get_sersol_data, Resolved
 
 #A 360Link API key needs to be specified here.  
 KEY = None
@@ -30,7 +30,7 @@ class TestPmidLookup(unittest.TestCase):
         required = ['url', 'holdingData', 'type']
         for link in link_groups:
             for req in required:
-                self.assertTrue(link.has_key(req))
+                self.assertTrue(req in link)
     
     def test_citation(self):
         citation = self.sersol.citation
@@ -47,10 +47,10 @@ class TestPmidLookup(unittest.TestCase):
         """
         
         ourl = self.sersol.openurl
-        ourl_dict = urlparse.parse_qs(ourl)
+        ourl_dict = urllib.parse.parse_qs(ourl)
         self.assertEqual(ourl_dict['rft_id'], ['info:doi/10.1177/1753193408098482', 'info:pmid/19282400'])
         self.assertEqual(ourl_dict['rft.eissn'][0], '1532-2211')
-        print ourl
+        print(ourl)
         
 
 class TestDoiLookup(unittest.TestCase):
@@ -95,7 +95,7 @@ class TestCiteLookup(unittest.TestCase):
         Check for the enhanced data.
         """
         ourl = self.sersol.openurl
-        ourl_dict = urlparse.parse_qs(ourl)
+        ourl_dict = urllib.parse.parse_qs(ourl)
         self.assertEqual(ourl_dict['rft.eissn'][0], '1523-7052')
         
 class TestFirstSearchBookLookup(unittest.TestCase):
@@ -113,7 +113,7 @@ class TestFirstSearchBookLookup(unittest.TestCase):
     
     def test_openurl(self):
         ourl = self.sersol.openurl
-        ourl_dict = urlparse.parse_qs(ourl)
+        ourl_dict = urllib.parse.parse_qs(ourl)
         self.assertTrue(ourl_dict['rfe_dat'][0], '<accessionnumber>17803510</accessionnumber>')
         #simple string find for accession number
         self.assertTrue(ourl.rfind('17803510') > -1 )
@@ -134,7 +134,7 @@ class TestFirstSearchArticleLookup(unittest.TestCase):
     
     def test_openurl(self):
         ourl = self.sersol.openurl
-        ourl_dict = urlparse.parse_qs(ourl)
+        ourl_dict = urllib.parse.parse_qs(ourl)
         self.assertTrue(ourl_dict['rft.genre'][0], 'article')
         self.assertTrue(ourl_dict['rfe_dat'][0], '<accessionnumber>114380499</accessionnumber>')
         #simple string find for accession number
